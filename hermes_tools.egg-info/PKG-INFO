@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: hermes-tools
+Version: 0.0.1
+Summary: Hermes runner tools (slurm only)
+Author: Jerome Guterl
+Author-email: guterlj@fusion.gat.com
+License: GNU Lesser General Public License v3 or later (LGPLv3+)
+Keywords: python,first package
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Requires-Python: >=3.6
+Description-Content-Type: text/x-rst
+
+My first Python package with a slightly longer description
