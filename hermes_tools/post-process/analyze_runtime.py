@@ -8,3 +8,5 @@ with open(outlog_fp) as f:
 for i,line in enumerate(lines):
     if 'Run time :' in line:
         break 
+
+
