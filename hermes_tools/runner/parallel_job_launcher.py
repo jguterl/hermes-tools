@@ -53,7 +53,7 @@ class BoutParallelJobLauncher():
         assert os.path.isfile(bout_exec), f"cannot find the bout exec file {bout_exec}"
         self.bout_exec = bout_exec
         
-    def setup_array_runs(self, params, boutconfig_file, options={}, casename='run', header_commands=[], sim_folder='simulations', overwrite=False):
+    def setup_array_runs(self, params, boutconfig_file, options={}, casename='run', header_commands=[], sim_folder='runs', bout_configfn = 'BOUT.inp', overwrite=False):
 
         dic = {}
         fp = os.path.abspath(boutconfig_file)
@@ -99,12 +99,10 @@ class BoutParallelJobLauncher():
             sim['bout_exec'] = self.bout_exec
             sim['bout_exec_directory'] = self.bout_exec_directory
 
- 
-
-            bout_configfn = os.path.basename(sim['original_bout_configfile'])
-            bout_configfile = os.path.join(sim['bout_dir'],bout_configfn)
-            print(f"Writing bout config file:{bout_configfile} ...")
-            write_bout_configfile(bout_configfile,config)
+            bout_configfilefp = os.path.join(sim['bout_dir'],bout_configfn)
+            print(f"Writing bout config file:{bout_configfilefp} ...")
+            write_bout_configfile(bout_configfilefp,config)
+            sim['bout_configfilefn'] = bout_configfn
 
             self.make_command_line(sim, header_commands)
             sims[i] = sim
@@ -159,7 +157,7 @@ class BoutParallelJobLauncher():
         header_commands = copy.deepcopy(header_commands)
         command = "cd {}".format(sim['bout_exec_directory'])
         header_commands.append(command)
-        command = "srun --mpi=pmi2 {} -d {} {}".format(sim['bout_exec'], sim['bout_dir'],args)
+        command = "srun --mpi=pmi2 {} -d {} -f {} {}".format(sim['bout_exec'], sim['bout_dir'],sim['bout_configfilefn'], args)
         header_commands.append(command)    
         sim['command'] = "\n".join(header_commands) + "\n"
 
