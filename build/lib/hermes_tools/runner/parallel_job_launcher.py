@@ -10,10 +10,10 @@ import itertools
 import numpy as np
 import os
 import shutil
-from slurm_support import *
+from .slurm_support import *
 import subprocess
 import copy
-from bout_parser_utils import *
+from .bout_parser_utils import *
 
 def chmodx_directory(directory):
     command = 'chmod -R u+x {}'.format(directory)
@@ -41,7 +41,10 @@ class BoutParallelJobLauncher():
     def __init__(self, directory, bout_exec_directory, bout_exec):
         self.sim_setup = {}
         self.njobs = 0
-        assert os.path.isdir(directory), f"Cannot find the directory {directory}"
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+        else:
+            raise Exception("The directory {directory} already exists...")
         self.directory = os.path.abspath(directory)
         assert os.path.isdir(bout_exec_directory), f"cannot find the bout exec directory {bout_exec_directory}"
         self.bout_exec_directory = bout_exec_directory

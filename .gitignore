@@ -1,0 +1,6 @@
+dist/hermes_tools-0.0.1-py3.11.egg
+dist/hermes_tools-1.0-py3.11.egg
+hermes_tools.egg-info/SOURCES.txt
+dist/*
+dist
+*.egg-info/*

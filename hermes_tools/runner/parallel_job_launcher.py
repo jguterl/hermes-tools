@@ -38,10 +38,14 @@ def dump_log(filename, dic):
 
 
 class BoutParallelJobLauncher():
-    def __init__(self, directory, bout_exec_directory, bout_exec):
+    def __init__(self, directory, bout_exec_directory, bout_exec, overwrite=False):
         self.sim_setup = {}
         self.njobs = 0
-        assert os.path.isdir(directory), f"Cannot find the directory {directory}"
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+        else:
+            if not overwrite:
+                raise Exception(f"The directory {directory} already exists...")
         self.directory = os.path.abspath(directory)
         assert os.path.isdir(bout_exec_directory), f"cannot find the bout exec directory {bout_exec_directory}"
         self.bout_exec_directory = bout_exec_directory
@@ -49,7 +53,7 @@ class BoutParallelJobLauncher():
         assert os.path.isfile(bout_exec), f"cannot find the bout exec file {bout_exec}"
         self.bout_exec = bout_exec
         
-    def setup_array_runs(self, params, boutconfig_file, options={}, casename='run', header_commands=[], sim_folder='simulations', bout_configfn = 'BOUT.inp'):
+    def setup_array_runs(self, params, boutconfig_file, options={}, casename='run', header_commands=[], sim_folder='simulations', overwrite=False):
 
         dic = {}
         fp = os.path.abspath(boutconfig_file)
@@ -84,17 +88,20 @@ class BoutParallelJobLauncher():
             sim['options'] = options
             sim['casename'] = '{}_{}'.format(casename, i)
             bout_dir = os.path.join(dic['directory'],dic['sim_folder'], sim['casename'])
-            assert not os.path.isdir(bout_dir), f"the directory {bout_dir} already exists ... Overwrite is not permitted..."
+            if os.path.isdir(bout_dir):
+                if not overwrite:
+                    raise Exeception(f"the directory {bout_dir} already exists ... Overwrite is not permitted...")
             sim['bout_dir'] = bout_dir
+            if not os.path.isdir(bout_dir):
+                print(f"Creating bout simulation directory { bout_dir} ...")
+                os.makedirs(sim['bout_dir'])
 
             sim['bout_exec'] = self.bout_exec
             sim['bout_exec_directory'] = self.bout_exec_directory
 
-            
-            print(f"Creating bout simulation directory { bout_dir} ...")
-            os.makedirs(sim['bout_dir'])
+ 
 
-
+            bout_configfn = os.path.basename(sim['original_bout_configfile'])
             bout_configfile = os.path.join(sim['bout_dir'],bout_configfn)
             print(f"Writing bout config file:{bout_configfile} ...")
             write_bout_configfile(bout_configfile,config)
@@ -174,7 +181,7 @@ class BoutParallelJobLauncher():
             logpath = os.path.join(
                 sim['bout_dir'], "log")
             sim['logpath'] = logpath
-            slurm_runner = slurm_support.SlurmSbatch(sim['command']+' >> {}'.format(
+            slurm_runner = SlurmSbatch(sim['command']+' >> {}'.format(
                 logpath), **slurm_options, script_dir=self.slurmscript_directory, script_name=script_name, pyslurm=True)
             self.slurm_runners.append(slurm_runner)
             slurm_runner.write_job_file()
